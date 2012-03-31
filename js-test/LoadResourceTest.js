@@ -21,7 +21,7 @@ LoadResourceTest.prototype.testLoadCss = function(queue){
     var callbackWrapper = callbacks.add(callbackFunction);
 
   	// asynchronously load css 
-    this.link = this.testUtils.loadCss("/test/src-test/cssresource.css", callbackWrapper);
+    this.link = this.testUtils.loadCss("/test/js-test/cssresource.css", callbackWrapper);
   });
   
   queue.call('Step 3: css is already applied', function() {
