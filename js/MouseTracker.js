@@ -1,5 +1,9 @@
 function makeClass(){
     return function(args){
+        if ('undefined' == typeof args) {
+            args = {};
+        }
+
         if ( this instanceof arguments.callee ) {
             if ( typeof this.init == "function" )
                 this.init.apply( this, args.callee ? args : arguments );
@@ -12,10 +16,17 @@ var SettingsTrait = {
     init: function(settings) {
         this.setup(settings);
     },
-    settings: {},
+    settings: {
+        debug: false
+    },
     setup: function(settings) {
         for (var e in settings) {
             this.settings[e] = settings[e];
+        }
+    },
+    debugLog: function(msg) {
+        if (this.settings.debug && window.console) {
+            console.log(msg);
         }
     },
     end: null
@@ -42,6 +53,7 @@ var PublisherTrait = {
         return this;
     },
     publish: function(eventData) {
+        this.debugLog(eventData);
         for (var e in this.subscribers) {
             this.subscribers[e].update(eventData);
         }
@@ -56,8 +68,9 @@ var SubscriberTrait = {
 };
 
 var MousePublisher = makeClass();
-MousePublisher.prototype = $.extend(SettingsTrait, PublisherTrait, {
+MousePublisher.prototype = $.extend({}, SettingsTrait, PublisherTrait, {
     init: function(settings) {
+        this.debugLog('init MousePublisher');
         this.setup(settings);
         this.dateStart = new Date();
         this.startListening();
@@ -66,6 +79,7 @@ MousePublisher.prototype = $.extend(SettingsTrait, PublisherTrait, {
     dateStart: null,
 
     startListening: function() {
+        this.debugLog('starting listening');
         (function(obj){
             $(document).mousemove(
                 function(e) {
@@ -85,7 +99,7 @@ MousePublisher.prototype = $.extend(SettingsTrait, PublisherTrait, {
 
 
 var MouseTrackSubscriber = makeClass();
-MouseTrackSubscriber.prototype = $.extend(SettingsTrait, SubscriberTrait, {
+MouseTrackSubscriber.prototype = $.extend({}, SettingsTrait, SubscriberTrait, {
     init: function(settings) {
         this.setup(settings);
         this.startTimer();
@@ -113,6 +127,8 @@ MouseTrackSubscriber.prototype = $.extend(SettingsTrait, SubscriberTrait, {
 
     saveTrack: function() {
         var url = this.settings.saveUrl;
+        this.debugLog('saving track');
+        this.debugLog(url);
         $.ajax({
             url: url,
             dataType:"jsonp",
@@ -124,6 +140,7 @@ MouseTrackSubscriber.prototype = $.extend(SettingsTrait, SubscriberTrait, {
     },
 
     startTimer: function() {
+        this.debugLog('starting saving timer');
         (function(obj){
             window.setInterval(function(){obj.saveTrack();}, obj.settings.saveInterval);
         })(this);
@@ -151,9 +168,13 @@ MouseTrackSubscriber.prototype = $.extend(SettingsTrait, SubscriberTrait, {
         /**
          * skipping duplicate frames
          */
-        if (this.track[this.lastFrameId].x == eventData.x && this.track[this.lastFrameId].y == eventData.y) {
+        if (this.lastFrameId
+            && this.track[this.lastFrameId].x == eventData.x
+            && this.track[this.lastFrameId].y == eventData.y) {
             return;
         }
+
+        this.debugLog();
 
         this.track[frameId] = [eventData.x, eventData.y];
         this.lastFrameId = frameId;
@@ -162,7 +183,6 @@ MouseTrackSubscriber.prototype = $.extend(SettingsTrait, SubscriberTrait, {
 });
 
 
-
-$().ready(function(){MousePublisher().addSubscriber(MouseTrackSubscriber());});
+$().ready(function(){MousePublisher({debug: false}).addSubscriber(MouseTrackSubscriber({debug: true}));});
 
 
