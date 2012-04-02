@@ -106,7 +106,7 @@ MouseTrackSubscriber.prototype = $.extend({}, SettingsTrait, SubscriberTrait, {
     },
 
     settings: {
-        timeResolution: 1000,
+        timeResolution: 30,
         xResolution: 1,
         yResolution: 1,
 
@@ -147,6 +147,9 @@ MouseTrackSubscriber.prototype = $.extend({}, SettingsTrait, SubscriberTrait, {
     },
 
     update: function(eventData) {
+        this.debugLog('MouseTrackSubscriber event received');
+        this.debugLog(eventData);
+
         /**
          * applying time precision
          */
