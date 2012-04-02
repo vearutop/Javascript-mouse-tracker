@@ -23,7 +23,13 @@ var SettingsTrait = {
 
 var PublisherTrait = {
     subscribers: {},
+
+    autoIncrement: 0,
     addSubscriber: function(subscriber, key) {
+        if ('undefined' == typeof key) {
+            key = this.autoIncrement++;
+        }
+
         if ('function' == typeof subscriber.update) {
             this.subscribers[key] = subscriber;
         }
@@ -91,7 +97,7 @@ MouseTrackSubscriber.prototype = $.extend(SettingsTrait, SubscriberTrait, {
         yResolution: 1,
 
         saveInterval: 10000,
-        saveUrl: 'http://localhost/?track=',
+        saveUrl: 'js/Terminator.js?track=',
 
         end: null
     },
@@ -119,7 +125,7 @@ MouseTrackSubscriber.prototype = $.extend(SettingsTrait, SubscriberTrait, {
 
     startTimer: function() {
         (function(obj){
-            window.setInterval(function(){obj.saveTrack();}, this.settings.saveInterval);
+            window.setInterval(function(){obj.saveTrack();}, obj.settings.saveInterval);
         })(this);
     },
 
@@ -157,6 +163,6 @@ MouseTrackSubscriber.prototype = $.extend(SettingsTrait, SubscriberTrait, {
 
 
 
-$().ready(function(){mousePublisher = MousePublisher().addSubscriber(MouseTrackSubscriber({}));});
+$().ready(function(){MousePublisher().addSubscriber(MouseTrackSubscriber());});
 
 
