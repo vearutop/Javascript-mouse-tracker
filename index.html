@@ -31,6 +31,23 @@
 
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="js/MouseTracker.js"></script>
+    <script type="text/javascript">
+        $().ready(function(){
+            MousePublisher({debug: false})
+                    .addSubscriber(MouseTrackSubscriber({
+                        //debug: true,
+                        saveUrl: 'http://vearutop.github.com/Javascript-mouse-tracker/js/Terminator.js?track=',
+                        saveInterval: 10000,
+                        timeResolution: 30,
+                        saveEmpty: false
+                    }))
+                    .addSubscriber(MouseShowSubscriber({
+                        xHolder: '#x-holder',
+                        yHolder: '#y-holder',
+                        msHolder: '#ms-holder'
+                    }));
+        });
+    </script>
 </head>
 
 <body>
@@ -52,21 +69,18 @@
       
     </div>
 
-    
-
-    
-
-    
-
-    
-
-    
       <h2>Authors</h2>
       <p>Viacheslav Poturaev (nanopeni@gmail.com)
 <br/>      </p>
-    
 
-    
+      <p>X: <span id="x-holder"></span></p>
+      <p>Y: <span id="y-holder"></span></p>
+      <p>Time passed (ms): <span id="ms-holder"></span></p>
+
+
+
+
+
       <h2>Contact</h2>
       <p> (nanopeni@gmail.com)
 <br/>      </p>
