@@ -31,6 +31,36 @@
 
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="js/MouseTracker.js"></script>
+    <script type="text/javascript">
+        /**
+         *  Server queries can be observed via net panel in firebug or similar
+         *  (example http://vearutop.github.com/Javascript-mouse-tracker/js/Terminator.js?track=9,79,853;10,114,874;11,139,917;176,1011,856;&callback=null)
+         */
+
+        $().ready(function () {
+            /* creating mouse move publisher */
+            MousePublisher({debug:false})
+                    /* adding track logger and saving */
+                    .addSubscriber(MouseTrackSubscriber({
+                /* enable or disable printing debug info to console.log */
+                debug: true,
+                /* url for saving track, track format is concat[floor(timeSinceStartInMs/timeResolution),x,y;] */
+                saveUrl:'http://vearutop.github.com/Javascript-mouse-tracker/js/Terminator.js?track=',
+                /* server saving time interval (in ms) */
+                saveInterval:10000,
+                /* min time interval between track frames */
+                timeResolution:30,
+                /* perform server query with empty track */
+                saveEmpty:false
+            }))
+                    /* adding realtime coordinates demo */
+                    .addSubscriber(MouseShowSubscriber({
+                xHolder:'#x-holder',
+                yHolder:'#y-holder',
+                msHolder:'#ms-holder'
+            }));
+        });
+    </script>
 </head>
 
 <body>
@@ -52,21 +82,52 @@
       
     </div>
 
-    
-
-    
-
-    
-
-    
-
-    
       <h2>Authors</h2>
       <p>Viacheslav Poturaev (nanopeni@gmail.com)
 <br/>      </p>
-    
 
-    
+          <h2>Demo</h2>
+          <p>X: <span id="x-holder"></span></p>
+          <p>Y: <span id="y-holder"></span></p>
+          <p>Time passed (ms): <span id="ms-holder"></span></p>
+
+      <h2>Usage</h2>
+      <pre style="overflow: auto">
+    &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js">&lt;/script>
+    &lt;script type="text/javascript" src="js/MouseTracker.js">&lt;/script>
+    &lt;script type="text/javascript">
+        /**
+         *  Server queries can be observed via net panel in firebug or similar
+         *  (example http://vearutop.github.com/Javascript-mouse-tracker/js/Terminator.js?track=9,79,853;10,114,874;11,139,917;176,1011,856;&callback=null)
+         */
+
+        $().ready(function () {
+            /* creating mouse move publisher */
+            MousePublisher({debug:false})
+                    /* adding track logger and saving */
+                    .addSubscriber(MouseTrackSubscriber({
+                /* enable or disable printing debug info to console.log */
+                debug: true,
+                /* url for saving track, track format is concat[floor(timeSinceStartInMs/timeResolution),x,y;] */
+                saveUrl:'http://vearutop.github.com/Javascript-mouse-tracker/js/Terminator.js?track=',
+                /* server saving time interval (in ms) */
+                saveInterval:10000,
+                /* min time interval between track frames */
+                timeResolution:30,
+                /* perform server query with empty track */
+                saveEmpty:false
+            }))
+                    /* adding realtime coordinates demo */
+                    .addSubscriber(MouseShowSubscriber({
+                xHolder:'#x-holder',
+                yHolder:'#y-holder',
+                msHolder:'#ms-holder'
+            }));
+        });    &lt;/script>
+      </pre>
+
+
+
       <h2>Contact</h2>
       <p> (nanopeni@gmail.com)
 <br/>      </p>

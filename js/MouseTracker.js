@@ -97,11 +97,39 @@ MousePublisher.prototype = $.extend({}, SettingsTrait, PublisherTrait, {
     end: null
 });
 
-
-var MouseTrackSubscriber = makeClass();
-MouseTrackSubscriber.prototype = $.extend({}, SettingsTrait, SubscriberTrait, {
+/**
+ * Class for showing current mouse position
+ */
+var MouseShowSubscriber = makeClass();
+$.extend(MouseShowSubscriber.prototype, SettingsTrait, SubscriberTrait, {
     init: function(settings) {
         this.setup(settings);
+    },
+
+    settings: {
+        xHolder: null,
+        yHolder: null,
+        msHolder: null
+    },
+
+    update: function(eventData) {
+        $(this.settings.xHolder).html(eventData.x);
+        $(this.settings.yHolder).html(eventData.y);
+        $(this.settings.msHolder).html(eventData.ms);
+    },
+
+    end: null
+});
+
+
+/**
+ * Mouse position storage and saver class
+ */
+var MouseTrackSubscriber = makeClass();
+$.extend(MouseTrackSubscriber.prototype, SettingsTrait, SubscriberTrait, {
+    init: function(settings) {
+        this.setup(settings);
+        this.reset();
         this.startTimer();
     },
 
@@ -112,31 +140,40 @@ MouseTrackSubscriber.prototype = $.extend({}, SettingsTrait, SubscriberTrait, {
 
         saveInterval: 10000,
         saveUrl: 'js/Terminator.js?track=',
+        maxTrackStringLength: 1000,
+
+        saveEmpty: false,
 
         end: null
     },
 
     intervalTimer: null,
-    track: {},
-    lastFrameId: null,
+    trackString: '',
+    lastFrame: {id: null, x: null, y: null},
 
     reset: function() {
-        this.lastFrameId = null;
-        this.track = {};
+        this.lastFrame = {id: null, x: null, y: null};
+        this.trackString = '';
     },
 
     saveTrack: function() {
-        var url = this.settings.saveUrl;
         this.debugLog('saving track');
-        this.debugLog(url);
+        this.debugLog(this.trackString);
+
+        if (!this.trackString && !this.settings.saveEmpty) {
+            return this;
+        }
+
         $.ajax({
-            url: url,
+            url: this.settings.saveUrl + this.trackString,
             dataType:"jsonp",
             cache: true,
             jsonpCallback: null,
             callback: false
         });
         this.reset();
+
+        return this;
     },
 
     startTimer: function() {
@@ -147,9 +184,6 @@ MouseTrackSubscriber.prototype = $.extend({}, SettingsTrait, SubscriberTrait, {
     },
 
     update: function(eventData) {
-        this.debugLog('MouseTrackSubscriber event received');
-        this.debugLog(eventData);
-
         /**
          * applying time precision
          */
@@ -171,21 +205,26 @@ MouseTrackSubscriber.prototype = $.extend({}, SettingsTrait, SubscriberTrait, {
         /**
          * skipping duplicate frames
          */
-        if (this.lastFrameId
-            && this.track[this.lastFrameId].x == eventData.x
-            && this.track[this.lastFrameId].y == eventData.y) {
+        if (this.lastFrame.id
+            && this.lastFrame.x == eventData.x
+            && this.lastFrame.y == eventData.y) {
             return;
         }
 
-        this.debugLog();
+        this.addTrack(frameId, eventData.x, eventData.y);
+    },
 
-        this.track[frameId] = [eventData.x, eventData.y];
+    addTrack: function(frameId, x, y) {
+        this.debugLog('saving frame');
+        var delta = '' + frameId + ',' + x + ',' + y + ';';
+        if (this.trackString.length + delta.length > this.settings.maxTrackStringLength) {
+            this.saveTrack();
+        }
+        this.trackString += delta;
         this.lastFrameId = frameId;
+        return this;
     },
     end: null
 });
-
-
-$().ready(function(){MousePublisher({debug: false}).addSubscriber(MouseTrackSubscriber({debug: true}));});
 
 
