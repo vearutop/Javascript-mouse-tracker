@@ -109,7 +109,7 @@ $.extend(MouseShowSubscriber.prototype, SettingsTrait, SubscriberTrait, {
     settings: {
         xHolder: null,
         yHolder: null,
-        msHolder: null,
+        msHolder: null
     },
 
     update: function(eventData) {
@@ -129,6 +129,7 @@ var MouseTrackSubscriber = makeClass();
 $.extend(MouseTrackSubscriber.prototype, SettingsTrait, SubscriberTrait, {
     init: function(settings) {
         this.setup(settings);
+        this.reset();
         this.startTimer();
     },
 
@@ -139,6 +140,7 @@ $.extend(MouseTrackSubscriber.prototype, SettingsTrait, SubscriberTrait, {
 
         saveInterval: 10000,
         saveUrl: 'js/Terminator.js?track=',
+        maxTrackStringLength: 1000,
 
         saveEmpty: false,
 
@@ -146,33 +148,24 @@ $.extend(MouseTrackSubscriber.prototype, SettingsTrait, SubscriberTrait, {
     },
 
     intervalTimer: null,
-    track: {},
-    lastFrameId: null,
+    trackString: '',
+    lastFrame: {id: null, x: null, y: null},
 
     reset: function() {
-        this.lastFrameId = null;
-        this.track = {};
+        this.lastFrame = {id: null, x: null, y: null};
+        this.trackString = '';
     },
 
     saveTrack: function() {
-        this.debugLog(this.track);
         this.debugLog('saving track');
+        this.debugLog(this.trackString);
 
-        var url = '';
-        var point;
-
-        for (var frameId in this.track) {
-            point = this.track[frameId];
-            url += '' + frameId + ',' + point[0] + ',' + point[1] + ';';
-        }
-
-        if (!url && !this.settings.saveEmpty) {
+        if (!this.trackString && !this.settings.saveEmpty) {
             return this;
         }
 
-        this.debugLog(url);
         $.ajax({
-            url: this.settings.saveUrl + url,
+            url: this.settings.saveUrl + this.trackString,
             dataType:"jsonp",
             cache: true,
             jsonpCallback: null,
@@ -212,16 +205,24 @@ $.extend(MouseTrackSubscriber.prototype, SettingsTrait, SubscriberTrait, {
         /**
          * skipping duplicate frames
          */
-        if (this.lastFrameId
-            && this.track[this.lastFrameId].x == eventData.x
-            && this.track[this.lastFrameId].y == eventData.y) {
+        if (this.lastFrame.id
+            && this.lastFrame.x == eventData.x
+            && this.lastFrame.y == eventData.y) {
             return;
         }
 
-        this.debugLog('saving frame');
+        this.addTrack(frameId, eventData.x, eventData.y);
+    },
 
-        this.track[frameId] = [eventData.x, eventData.y];
+    addTrack: function(frameId, x, y) {
+        this.debugLog('saving frame');
+        var delta = '' + frameId + ',' + x + ',' + y + ';';
+        if (this.trackString.length + delta.length > this.settings.maxTrackStringLength) {
+            this.saveTrack();
+        }
+        this.trackString += delta;
         this.lastFrameId = frameId;
+        return this;
     },
     end: null
 });
