@@ -52,8 +52,15 @@ var PublisherTrait = {
         }
         return this;
     },
+
+    getSubscriber: function(key) {
+        if ('undefined' !== typeof this.subscribers[key]) {
+            return this.subscribers[key];
+        }
+        return false;
+    },
+
     publish: function(eventData) {
-        this.debugLog(eventData);
         for (var e in this.subscribers) {
             this.subscribers[e].update(eventData);
         }
@@ -68,7 +75,7 @@ var SubscriberTrait = {
 };
 
 var MousePublisher = makeClass();
-MousePublisher.prototype = $.extend({}, SettingsTrait, PublisherTrait, {
+$.extend(MousePublisher.prototype, SettingsTrait, PublisherTrait, {
     init: function(settings) {
         this.debugLog('init MousePublisher');
         this.setup(settings);
@@ -77,11 +84,12 @@ MousePublisher.prototype = $.extend({}, SettingsTrait, PublisherTrait, {
     },
 
     dateStart: null,
+    listenerName: 'mousepublisher',
 
     startListening: function() {
         this.debugLog('starting listening');
         (function(obj){
-            $(document).mousemove(
+            $(document).bind('mousemove.' + this.listenerName,
                 function(e) {
                     obj.setEvent(e);
                 }
@@ -89,6 +97,12 @@ MousePublisher.prototype = $.extend({}, SettingsTrait, PublisherTrait, {
         })(this);
 
         return this;
+    },
+
+    stopListening: function() {
+        this.debugLog('stopping listening');
+        $(document).unbind('mousemove.' + this.listenerName);
+
     },
 
     setEvent: function(e) {
@@ -215,7 +229,7 @@ $.extend(MouseTrackSubscriber.prototype, SettingsTrait, SubscriberTrait, {
     },
 
     addTrack: function(frameId, x, y) {
-        this.debugLog('saving frame');
+        this.debugLog('saving frame ' + frameId + ' ' + x + ' ' + y);
         var delta = '' + frameId + ',' + x + ',' + y + ';';
         if (this.trackString.length + delta.length > this.settings.maxTrackStringLength) {
             this.saveTrack();

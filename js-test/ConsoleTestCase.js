@@ -1,3 +1,4 @@
+
 ConsoleTestCase = TestCase("ConsoleTestCase");
  
 ConsoleTestCase.prototype.testLogging = function(){
@@ -9,3 +10,4 @@ ConsoleTestCase.prototype.testLogging = function(){
   jstestdriver.console.warn("The value is undefined: ", undefinedVariable);
   jstestdriver.console.error(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 };
+

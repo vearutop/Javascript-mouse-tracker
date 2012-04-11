@@ -1,3 +1,4 @@
+
 HtmlDeclaredInSetUp = TestCase("HtmlDeclaredInSetUp");
  
 HtmlDeclaredInSetUp.prototype.setUp = function() {

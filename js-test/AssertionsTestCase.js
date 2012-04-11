@@ -1,3 +1,4 @@
+
 AssertionsTestCase = TestCase("AssertionsTestCase");
  
 AssertionsTestCase.prototype.testAlwaysPass = function(){
