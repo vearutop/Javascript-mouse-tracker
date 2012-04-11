@@ -1,8 +1,5 @@
 MouseTrackerTest = TestCase("MouseTrackerTest");
 
-MouseTrackerTest.prototype.tracker = null;
-MouseTrackerTest.prototype.publisher = null;
-
 MouseTrackerTest.prototype.setUp = function () {
     this.tracker = MouseTrackSubscriber({
         /* enable or disable printing debug info to console.log */
@@ -26,12 +23,18 @@ MouseTrackerTest.prototype.setUp = function () {
 MouseTrackerTest.prototype.tearDown = function () {
     this.publisher.stopListening();
 };
+//MouseTrackerTest.prototype.tracker = null;
+//MouseTrackerTest.prototype.publisher = null;
 
-MouseTrackerTest.prototype.testTrack = function () {
-    this.publisher.setEvent({pageX:100, pageY:200});
-    assertEquals('last frame x', this.tracker.lastFrame.x, 100);
-    assertEquals('last frame y', this.tracker.lastFrame.y, 2200);
-    assertEquals('track', this.tracker.trackString, '');
+
+MouseTrackerTest.prototype.testLastFrame = function () {
+    this.publisher.setEvent({pageX:1200, pageY:200});
+
+    jstestdriver.console.info("Array content is: ", this.tracker, " ");
+
+    assertEquals('last frame x', 1200, this.tracker.lastFrame.x);
+    assertEquals('last frame y', this.tracker.lastFrame.y, 200);
+    assertEquals('track', this.tracker.trackString, '0,1200,200;');
 
     // emulating mouse movement
     /*

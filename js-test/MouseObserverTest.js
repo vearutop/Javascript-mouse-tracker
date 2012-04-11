@@ -1,4 +1,4 @@
-MouseObserverTest = TestCase("MouseTrackerTest");
+MouseObserverTest = TestCase("MouseObserverTest");
 
 MouseObserverTest.prototype.setUp = function() {
     /*:DOC +=

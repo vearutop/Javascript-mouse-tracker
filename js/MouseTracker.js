@@ -202,7 +202,7 @@ $.extend(MouseTrackSubscriber.prototype, SettingsTrait, SubscriberTrait, {
          * applying time precision
          */
         var frameId = Math.floor(eventData.ms / this.settings.timeResolution);
-        if (frameId == this.lastFrameId) {
+        if (frameId == this.lastFrame.id) {
             return;
         }
 
@@ -235,7 +235,7 @@ $.extend(MouseTrackSubscriber.prototype, SettingsTrait, SubscriberTrait, {
             this.saveTrack();
         }
         this.trackString += delta;
-        this.lastFrameId = frameId;
+        this.lastFrame = {id:frameId, x: x, y: y};
         return this;
     },
     end: null
