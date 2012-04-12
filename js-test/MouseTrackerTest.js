@@ -30,11 +30,36 @@ MouseTrackerTest.prototype.tearDown = function () {
 MouseTrackerTest.prototype.testLastFrame = function () {
     this.publisher.setEvent({pageX:1200, pageY:200});
 
-    jstestdriver.console.info("Array content is: ", this.tracker, " ");
+    //jstestdriver.console.info("tracker data ", this.tracker, " ");
 
-    assertEquals('last frame x', 1200, this.tracker.lastFrame.x);
+    // first frame
+    assertEquals('last frame x', this.tracker.lastFrame.x, 1200);
     assertEquals('last frame y', this.tracker.lastFrame.y, 200);
-    assertEquals('track', this.tracker.trackString, '0,1200,200;');
+    assertEquals('track', '0,1200,200;', this.tracker.trackString);
+
+    //this.tracker.settings.maxTrackStringLength = 10;
+
+    // collision frame should be ignored
+    this.publisher.setEvent(({pageX:120, pageY:300}));
+    assertNotEquals('last frame x', 120, this.tracker.lastFrame.x);
+    assertNotEquals('last frame y', 300, this.tracker.lastFrame.y);
+    assertEquals('track', '0,1200,200;', this.tracker.trackString);
+
+    // delaying to the next frame
+    var start = new Date();
+    var now = null;
+    do { now = new Date(); }
+    while(now - start < 30);
+
+    // collision frame should be ignored
+    this.publisher.setEvent(({pageX:150, pageY:320}));
+    assertEquals('last frame x', 150, this.tracker.lastFrame.x);
+    assertEquals('last frame y', 320, this.tracker.lastFrame.y);
+    assertEquals('track', '0,1200,200;1,150,320;', this.tracker.trackString);
+
+
+    //jstestdriver.console.info("tracker data ", this.tracker, " ");
+
 
     // emulating mouse movement
     /*
