@@ -61,12 +61,6 @@ MouseTrackerTest.prototype.testLastFrame = function () {
     //jstestdriver.console.info("tracker data ", this.tracker, " ");
 
 
-    // emulating mouse movement
-    /*
-     (function(obj){
-     obj.timer = window.setInterval(function(){obj.saveTrack();}, obj.settings.saveInterval);
-     })(this);
-     */
 };
 
 
